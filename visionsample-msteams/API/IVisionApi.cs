@@ -1,7 +1,7 @@
-﻿namespace VisionSample.API
+﻿namespace VisionSample.Api
 {
     using System.Threading.Tasks;
-    using VisonSample.API.Models;
+    using VisonSample.Api.Models;
 
     public interface IVisionApi
     {

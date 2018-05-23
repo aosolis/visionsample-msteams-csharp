@@ -1,11 +1,11 @@
-﻿namespace VisionSample.API
+﻿namespace VisionSample.Api
 {
     using System;
     using System.Net;
     using System.Net.Http;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
-    using VisonSample.API.Models;
+    using VisonSample.Api.Models;
 
     public class AzureVisionApi : IVisionApi
     {
@@ -22,23 +22,17 @@
         {
             this.httpClient = new HttpClient(httpHandler ?? new HttpClientHandler());
             this.httpClient.DefaultRequestHeaders.Add(SubscriptionKeyHeaderName, accessKey);
-            this.httpClient.BaseAddress = new Uri($"https://${endpoint}/");
+            this.httpClient.BaseAddress = new Uri($"https://{endpoint}/");
         }
 
         public async Task<DescribeImageResult> DescribeImageAsync(string imageUrl, string language = "en", int maxCandidates = 1)
         {
-            var qsp = string.Format("language={0}&maxCandidates={1}", language, maxCandidates);
-            var url = $"${DescribePath}?${qsp}";
+            var url = $"{DescribePath}?language={language}&maxCandidates={maxCandidates}";
 
             var result = await this.httpClient.PostAsJsonAsync(url, new DescribeImageRequest { Url = imageUrl });
-            if (result.StatusCode == HttpStatusCode.OK)
-            {
-                return JsonConvert.DeserializeObject<DescribeImageResult>(await result.Content.ReadAsStringAsync());
-            }
-            else
-            {
-                throw new Exception();
-            }
+            result.EnsureSuccessStatusCode();
+
+            return JsonConvert.DeserializeObject<DescribeImageResult>(await result.Content.ReadAsStringAsync());
         }
 
         public Task<DescribeImageResult> DescribeImageAsync(byte[] image, string language = "en", int maxCandidates = 1)

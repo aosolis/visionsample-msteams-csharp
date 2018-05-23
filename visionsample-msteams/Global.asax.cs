@@ -5,11 +5,19 @@ using Microsoft.Bot.Builder.Dialogs.Internals;
 using Autofac;
 using Microsoft.Bot.Connector;
 using System.Reflection;
+using Autofac.Integration.WebApi;
+using VisionSample.Api;
+using System.Configuration;
+using System.Net.Http;
+using System;
 
 namespace VisonSample
 {
     public class WebApiApplication : System.Web.HttpApplication
     {
+        const string VisionEndpointKey = "VisionEndpoint";
+        const string VisionAccessKeyKey = "VisionAccessKey";
+
         protected void Application_Start()
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
@@ -17,6 +25,7 @@ namespace VisonSample
             Conversation.UpdateContainer(
             builder =>
             {
+                builder.RegisterApiControllers(typeof(WebApiApplication).Assembly);
                 builder.RegisterModule(new AzureModule(Assembly.GetExecutingAssembly()));
 
                 // Bot Storage: Here we register the state storage for your bot. 
@@ -33,7 +42,23 @@ namespace VisonSample
                     .Keyed<IBotDataStore<BotData>>(AzureModule.Key_DataStore)
                     .AsSelf()
                     .SingleInstance();
+
+                builder.Register(c => new HttpClientHandler())
+                    .As<HttpMessageHandler>()
+                    .SingleInstance();
+
+                builder.Register(c =>
+                    {
+                        var endpoint = ConfigurationManager.AppSettings[VisionEndpointKey] ?? Environment.GetEnvironmentVariable(VisionEndpointKey, EnvironmentVariableTarget.Process);
+                        var accessKey = ConfigurationManager.AppSettings[VisionAccessKeyKey] ?? Environment.GetEnvironmentVariable(VisionAccessKeyKey, EnvironmentVariableTarget.Process);
+                        return new AzureVisionApi(endpoint, accessKey, c.Resolve<HttpMessageHandler>());
+                    })
+                    .AsImplementedInterfaces()
+                    .SingleInstance();
             });
+
+            // Register Autofac as the dependency resolver
+            GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver(Conversation.Container);
         }
     }
 }

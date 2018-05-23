@@ -1,4 +1,4 @@
-﻿namespace VisonSample.API.Models
+﻿namespace VisonSample.Api.Models
 {
     using System.Collections.Generic;
 

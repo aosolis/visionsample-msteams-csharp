@@ -48,6 +48,9 @@
     <Reference Include="Autofac, Version=4.6.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.6.0\lib\net45\Autofac.dll</HintPath>
     </Reference>
+    <Reference Include="Autofac.Integration.WebApi, Version=4.1.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.WebApi2.4.1.0\lib\net45\Autofac.Integration.WebApi.dll</HintPath>
+    </Reference>
     <Reference Include="Chronic, Version=0.3.2.0, Culture=neutral, PublicKeyToken=3bd1f1ef638b0d3c, processorArchitecture=MSIL">
       <HintPath>..\packages\Chronic.Signed.0.3.2\lib\net40\Chronic.dll</HintPath>
     </Reference>
@@ -125,6 +128,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.IdentityModel.Tokens.Jwt, Version=5.1.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -155,11 +159,16 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\AzureVisionApi.cs" />
-    <Compile Include="API\IVisionApi.cs" />
-    <Compile Include="API\Models\RunOcr.cs" />
-    <Compile Include="API\Models\DescribeImage.cs" />
+    <Compile Include="Api\AzureVisionApi.cs" />
+    <Compile Include="Api\IVisionApi.cs" />
+    <Compile Include="Api\Models\RunOcr.cs" />
+    <Compile Include="Api\Models\DescribeImage.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="BotBuilder-Extensions\FileUploadInfo.cs" />
+    <Compile Include="BotBuilder-Extensions\FileConsentCardResponse.cs" />
+    <Compile Include="BotBuilder-Extensions\FileInfoCard.cs" />
+    <Compile Include="BotBuilder-Extensions\FileConsentCard.cs" />
+    <Compile Include="BotBuilder-Extensions\FileDownloadInfo.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Dialogs\RootDialog.cs" />
     <Compile Include="Global.asax.cs">
