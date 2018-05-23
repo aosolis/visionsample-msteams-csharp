@@ -6,7 +6,7 @@ using Autofac;
 using Microsoft.Bot.Connector;
 using System.Reflection;
 
-namespace visionsample_msteams
+namespace VisonSample
 {
     public class WebApiApplication : System.Web.HttpApplication
     {

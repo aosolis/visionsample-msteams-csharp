@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace visionsample_msteams
+namespace VisonSample
 {
     public static class WebApiConfig
     {

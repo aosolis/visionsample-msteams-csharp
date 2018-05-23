@@ -11,7 +11,7 @@
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>visionsample_msteams</RootNamespace>
+    <RootNamespace>VisionSample</RootNamespace>
     <AssemblyName>visionsample-msteams</AssemblyName>
     <!--<TargetFrameworkVersion>v4.7</TargetFrameworkVersion>-->
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
@@ -155,6 +155,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\AzureVisionApi.cs" />
+    <Compile Include="API\IVisionApi.cs" />
+    <Compile Include="API\Models\RunOcr.cs" />
+    <Compile Include="API\Models\DescribeImage.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Dialogs\RootDialog.cs" />
