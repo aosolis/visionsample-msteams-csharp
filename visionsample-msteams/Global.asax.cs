@@ -1,15 +1,16 @@
-﻿using System.Web.Http;
+﻿using System;
+using System.Configuration;
+using System.Net.Http;
+using System.Reflection;
+using System.Web.Http;
+using Autofac;
+using Autofac.Integration.WebApi;
 using Microsoft.Bot.Builder.Azure;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Internals;
-using Autofac;
+using Microsoft.Bot.Builder.Internals.Fibers;
 using Microsoft.Bot.Connector;
-using System.Reflection;
-using Autofac.Integration.WebApi;
 using VisionSample.Api;
-using System.Configuration;
-using System.Net.Http;
-using System;
 
 namespace VisonSample
 {
@@ -25,7 +26,7 @@ namespace VisonSample
             Conversation.UpdateContainer(
             builder =>
             {
-                builder.RegisterApiControllers(typeof(WebApiApplication).Assembly);
+                builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
                 builder.RegisterModule(new AzureModule(Assembly.GetExecutingAssembly()));
 
                 // Bot Storage: Here we register the state storage for your bot. 
@@ -43,18 +44,29 @@ namespace VisonSample
                     .AsSelf()
                     .SingleInstance();
 
-                builder.Register(c => new HttpClientHandler())
-                    .As<HttpMessageHandler>()
+                builder.RegisterType<HttpClient>()
+                    .AsSelf()
+                    .Keyed<HttpClient>(FiberModule.Key_DoNotSerialize)
+                    .SingleInstance();
+
+                builder.RegisterType<MicrosoftAppCredentialsProvider>()
+                    .AsImplementedInterfaces()
+                    .Keyed<IMicrosoftAppCredentialsProvider>(FiberModule.Key_DoNotSerialize)
                     .SingleInstance();
 
                 builder.Register(c =>
                     {
                         var endpoint = ConfigurationManager.AppSettings[VisionEndpointKey] ?? Environment.GetEnvironmentVariable(VisionEndpointKey, EnvironmentVariableTarget.Process);
                         var accessKey = ConfigurationManager.AppSettings[VisionAccessKeyKey] ?? Environment.GetEnvironmentVariable(VisionAccessKeyKey, EnvironmentVariableTarget.Process);
-                        return new AzureVisionApi(endpoint, accessKey, c.Resolve<HttpMessageHandler>());
+                        return new AzureVisionApi(endpoint, accessKey, c.Resolve<HttpClient>());
                     })
                     .AsImplementedInterfaces()
+                    .Keyed<IVisionApi>(FiberModule.Key_DoNotSerialize)
                     .SingleInstance();
+
+                builder.RegisterType<Dialogs.CaptionDialog>()
+                    .AsSelf()
+                    .InstancePerDependency();
             });
 
             // Register Autofac as the dependency resolver

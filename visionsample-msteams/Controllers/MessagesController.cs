@@ -2,11 +2,9 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Autofac;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
-using VisionSample.Api;
-using Microsoft.Bot.Builder.Dialogs.Internals;
-using Autofac;
 
 namespace VisonSample
 {
@@ -14,12 +12,10 @@ namespace VisonSample
     public class MessagesController : ApiController
     {
         private ILifetimeScope scope;
-        private IVisionApi visionApi;
 
-        public MessagesController(ILifetimeScope scope, IVisionApi visionApi)
+        public MessagesController(ILifetimeScope scope)
         {
             this.scope = scope;
-            this.visionApi = visionApi;
         }
 
         /// <summary>
@@ -28,41 +24,46 @@ namespace VisonSample
         /// </summary>
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
-            using (var scope = DialogModule.BeginLifetimeScope(this.scope, activity))
+            if (activity.GetActivityType() == ActivityTypes.Message)
             {
-                if (activity.GetActivityType() == ActivityTypes.Message)
-                {
-                    await this.HandleMessageAsync(activity, scope.Resolve<IConnectorClient>());
-                }
-                else if (activity.GetActivityType() == ActivityTypes.Invoke)
-                {
-                    await this.HandleInvokeAsync(activity, scope.Resolve<IConnectorClient>());
-                }
+                await Conversation.SendAsync(activity, () => this.scope.Resolve<Dialogs.CaptionDialog>());
             }
-            
+            else
+            {
+                HandleSystemMessage(activity);
+            }
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
         }
 
-        private async Task HandleMessageAsync(Activity message, IConnectorClient connectorClient)
+        private Activity HandleSystemMessage(Activity message)
         {
-            // Send typing activity
-            var typingActivity = message.CreateReply();
-            typingActivity.Type = ActivityTypes.Typing;
-            await connectorClient.Conversations.ReplyToActivityAsync(typingActivity);
+            string messageType = message.GetActivityType();
+            if (messageType == ActivityTypes.DeleteUserData)
+            {
+                // Implement user deletion here
+                // If we handle user deletion, return a real message
+            }
+            else if (messageType == ActivityTypes.ConversationUpdate)
+            {
+                // Handle conversation state changes, like members being added and removed
+                // Use Activity.MembersAdded and Activity.MembersRemoved and Activity.Action for info
+                // Not available in all channels
+            }
+            else if (messageType == ActivityTypes.ContactRelationUpdate)
+            {
+                // Handle add/remove from contact lists
+                // Activity.From + Activity.Action represent what happened
+            }
+            else if (messageType == ActivityTypes.Typing)
+            {
+                // Handle knowing that the user is typing
+            }
+            else if (messageType == ActivityTypes.Ping)
+            {
+            }
 
-            // Send instruction text
-            var instructionText = message.CreateReply();
-            instructionText.Text = "Hi! Send me a picture or a link to one, and I'll tell you what it is.";
-            await connectorClient.Conversations.ReplyToActivityAsync(instructionText);
-        }
-
-        private async Task HandleInvokeAsync(Activity invoke, IConnectorClient connectorClient)
-        {
-            // Send typing activity
-            var typingActivity = invoke.CreateReply();
-            typingActivity.Type = ActivityTypes.Typing;
-            await connectorClient.Conversations.SendToConversationAsync(typingActivity);
+            return null;
         }
     }
 }

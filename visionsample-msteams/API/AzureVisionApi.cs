@@ -1,8 +1,10 @@
 ﻿namespace VisionSample.Api
 {
     using System;
-    using System.Net;
+    using System.IO;
     using System.Net.Http;
+    using System.Net.Http.Formatting;
+    using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
     using VisonSample.Api.Models;
@@ -16,28 +18,48 @@
         // Common headers
         public const string SubscriptionKeyHeaderName = "Ocp-Apim-Subscription-Key";
 
+        private static readonly JsonMediaTypeFormatter JsonFormatter = new JsonMediaTypeFormatter();
+
+        private string endpoint;
+        private string accessKey;
         private HttpClient httpClient;
 
-        public AzureVisionApi(string endpoint, string accessKey, HttpMessageHandler httpHandler = null)
+        public AzureVisionApi(string endpoint, string accessKey, HttpClient httpClient = null)
         {
-            this.httpClient = new HttpClient(httpHandler ?? new HttpClientHandler());
-            this.httpClient.DefaultRequestHeaders.Add(SubscriptionKeyHeaderName, accessKey);
-            this.httpClient.BaseAddress = new Uri($"https://{endpoint}/");
+            this.endpoint = endpoint;
+            this.accessKey = accessKey;
+            this.httpClient = httpClient ?? new HttpClient();
         }
 
         public async Task<DescribeImageResult> DescribeImageAsync(string imageUrl, string language = "en", int maxCandidates = 1)
         {
-            var url = $"{DescribePath}?language={language}&maxCandidates={maxCandidates}";
+            var url = $"https://{endpoint}/{DescribePath}?language={language}&maxCandidates={maxCandidates}";
 
-            var result = await this.httpClient.PostAsJsonAsync(url, new DescribeImageRequest { Url = imageUrl });
-            result.EnsureSuccessStatusCode();
+            var request = new HttpRequestMessage(HttpMethod.Post, $"https://{this.endpoint}/{DescribePath}?language={language}&maxCandidates={maxCandidates}");
+            request.Headers.Add(SubscriptionKeyHeaderName, this.accessKey);
 
-            return JsonConvert.DeserializeObject<DescribeImageResult>(await result.Content.ReadAsStringAsync());
+            var body = new DescribeImageRequest { Url = imageUrl };
+            request.Content = new ObjectContent<DescribeImageRequest>(body, JsonFormatter);
+
+            var response = await this.httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            return JsonConvert.DeserializeObject<DescribeImageResult>(await response.Content.ReadAsStringAsync());
         }
 
-        public Task<DescribeImageResult> DescribeImageAsync(byte[] image, string language = "en", int maxCandidates = 1)
+        public async Task<DescribeImageResult> DescribeImageAsync(byte[] image, string language = "en", int maxCandidates = 1)
         {
-            throw new NotImplementedException();
+            var url = $"https://{endpoint}/{DescribePath}?language={language}&maxCandidates={maxCandidates}";
+
+            var request = new HttpRequestMessage(HttpMethod.Post, $"https://{this.endpoint}/{DescribePath}?language={language}&maxCandidates={maxCandidates}");
+            request.Headers.Add(SubscriptionKeyHeaderName, this.accessKey);
+            request.Content = new StreamContent(new MemoryStream(image));
+            //request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+            var response = await this.httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            return JsonConvert.DeserializeObject<DescribeImageResult>(await response.Content.ReadAsStringAsync());
         }
 
         public Task<OcrResult> RunOcrAsync(string image, string language = "en")
