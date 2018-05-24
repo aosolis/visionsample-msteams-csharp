@@ -34,8 +34,7 @@
         public async Task<DescribeImageResult> DescribeImageAsync(string imageUrl, string language = "en", int maxCandidates = 1)
         {
             var url = $"https://{endpoint}/{DescribePath}?language={language}&maxCandidates={maxCandidates}";
-
-            var request = new HttpRequestMessage(HttpMethod.Post, $"https://{this.endpoint}/{DescribePath}?language={language}&maxCandidates={maxCandidates}");
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Headers.Add(SubscriptionKeyHeaderName, this.accessKey);
 
             var body = new DescribeImageRequest { Url = imageUrl };
@@ -50,8 +49,7 @@
         public async Task<DescribeImageResult> DescribeImageAsync(byte[] image, string language = "en", int maxCandidates = 1)
         {
             var url = $"https://{endpoint}/{DescribePath}?language={language}&maxCandidates={maxCandidates}";
-
-            var request = new HttpRequestMessage(HttpMethod.Post, $"https://{this.endpoint}/{DescribePath}?language={language}&maxCandidates={maxCandidates}");
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Headers.Add(SubscriptionKeyHeaderName, this.accessKey);
             request.Content = new StreamContent(new MemoryStream(image));
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
