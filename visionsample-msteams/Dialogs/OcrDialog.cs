@@ -1,22 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Connector;
-using Microsoft.Bot.Connector.Teams.Models;
-using Newtonsoft.Json.Linq;
-using VisionSample.Api;
-using VisonSample.Api.Models;
-
-namespace VisonSample.Dialogs
+﻿namespace VisonSample.Dialogs
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Globalization;
+    using System.IO;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Autofac;
+    using Microsoft.Bot.Builder.Dialogs;
+    using Microsoft.Bot.Builder.Dialogs.Internals;
+    using Microsoft.Bot.Connector;
+    using Microsoft.Bot.Connector.Teams.Models;
+    using Newtonsoft.Json.Linq;
+    using VisionSample.Api;
+    using VisonSample.Api.Models;
+
     class OcrResultData
     {
         public string ResultId { get; set; }
@@ -123,11 +125,19 @@ namespace VisonSample.Dialogs
 
         private async Task HandleFileConsentResponseAsync(IDialogContext context, Activity message)
         {
+            IConnectorClientFactory connectorClientFactory = new ConnectorClientFactory(Address.FromActivity(message), this.appCredentialsProvider.GetCredentials());
+            var connectorClient = connectorClientFactory.MakeConnectorClient();
+
             var fileConsentCardResponse = ((JObject)message.Value).ToObject<FileConsentCardResponse>();
             switch (fileConsentCardResponse.Action)
             {
                 case FileConsentCardResponse.DeclineAction:
-                    // TODO: Delete file consent card
+                    // Delete the file consent card
+                    if (message.ReplyToId != null)
+                    {
+                        await connectorClient.Conversations.DeleteActivityAsync(message.Conversation.Id, message.ReplyToId);
+                    }
+
                     await context.PostAsync("Ok! If you change your mind, just send me the picture again.");
                     break;
 
@@ -151,6 +161,12 @@ namespace VisonSample.Dialogs
                         // Upload the file contents to the upload session we got from the invoke value
                         // See https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_createuploadsession#upload-bytes-to-the-upload-session
                         await this.UploadFileAsync(fileConsentCardResponse.UploadInfo.UploadUrl, lastOcrResult.Text);
+
+                        // Delete the file consent card
+                        if (message.ReplyToId != null)
+                        {
+                            await connectorClient.Conversations.DeleteActivityAsync(message.Conversation.Id, message.ReplyToId);
+                        }
 
                         // Send message with link to the file.
                         // The fields in the file info card are populated from the upload info we got in the incoming invoke.
