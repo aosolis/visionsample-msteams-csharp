@@ -175,7 +175,6 @@
     <Compile Include="Dialogs\OcrDialog.cs" />
     <Compile Include="Dialogs\MessageHelper.cs" />
     <Compile Include="Dialogs\CaptionDialog.cs" />
-    <Compile Include="Dialogs\RootDialog.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
