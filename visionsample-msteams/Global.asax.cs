@@ -16,9 +16,6 @@ namespace VisonSample
 {
     public class WebApiApplication : System.Web.HttpApplication
     {
-        const string VisionEndpointKey = "VisionEndpoint";
-        const string VisionAccessKeyKey = "VisionAccessKey";
-
         protected void Application_Start()
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
@@ -62,8 +59,8 @@ namespace VisonSample
 
                 builder.Register(c =>
                     {
-                        var endpoint = ConfigurationManager.AppSettings[VisionEndpointKey] ?? Environment.GetEnvironmentVariable(VisionEndpointKey, EnvironmentVariableTarget.Process);
-                        var accessKey = ConfigurationManager.AppSettings[VisionAccessKeyKey] ?? Environment.GetEnvironmentVariable(VisionAccessKeyKey, EnvironmentVariableTarget.Process);
+                        var endpoint = ConfigurationManager.AppSettings["VisionEndpoint"] ?? Environment.GetEnvironmentVariable("VisionEndpoint", EnvironmentVariableTarget.Process);
+                        var accessKey = ConfigurationManager.AppSettings["VisionAccessKey"] ?? Environment.GetEnvironmentVariable("VisionAccessKey", EnvironmentVariableTarget.Process);
                         return new AzureVisionApi(endpoint, accessKey, c.Resolve<HttpClient>());
                     })
                     .AsImplementedInterfaces()

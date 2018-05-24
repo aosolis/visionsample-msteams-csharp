@@ -21,8 +21,8 @@ namespace VisonSample
 
         public MicrosoftAppCredentialsProvider()
         {
-            this.captionBotId = ConfigurationManager.AppSettings["CaptionBotId"] ?? Environment.GetEnvironmentVariable("CaptionBotId");
-            this.ocrBotId = ConfigurationManager.AppSettings["OcrBotId"] ?? Environment.GetEnvironmentVariable("OcrBotId");
+            this.captionBotId = ConfigurationManager.AppSettings["CaptionBotId"] ?? Environment.GetEnvironmentVariable("CaptionBotId", EnvironmentVariableTarget.Process);
+            this.ocrBotId = ConfigurationManager.AppSettings["OcrBotId"] ?? Environment.GetEnvironmentVariable("OcrBotId", EnvironmentVariableTarget.Process);
         }
 
         public MicrosoftAppCredentials GetCredentials(string botId)

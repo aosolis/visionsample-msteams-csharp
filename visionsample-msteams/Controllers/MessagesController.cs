@@ -1,14 +1,13 @@
-﻿using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Web.Http;
-using Autofac;
-using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Connector;
-
-namespace VisonSample
+﻿namespace VisonSample
 {
-    [BotAuthentication(MicrosoftAppIdSettingName = "OcrMicrosoftAppId", MicrosoftAppPasswordSettingName = "OcrMicrosoftAppPassword")]
+    using System.Net;
+    using System.Net.Http;
+    using System.Threading.Tasks;
+    using System.Web.Http;
+    using Autofac;
+    using Microsoft.Bot.Builder.Dialogs;
+    using Microsoft.Bot.Connector;
+
     public class MessagesController : ApiController
     {
         private ILifetimeScope scope;
@@ -19,15 +18,41 @@ namespace VisonSample
         }
 
         /// <summary>
-        /// POST: api/Messages
-        /// Receive a message from a user and reply to it
+        /// POST: api/messages
+        /// (OCR Bot) Receive a message from a user and reply to it
         /// </summary>
-        public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
+        [HttpPost]
+        [Route("api/messages")]
+        [Route("ocr/messages")]
+        [BotAuthentication(MicrosoftAppIdSettingName = "OcrMicrosoftAppId", MicrosoftAppPasswordSettingName = "OcrMicrosoftAppPassword")]
+        public async Task<HttpResponseMessage> PostToOcrBot([FromBody]Activity activity)
         {
             if ((activity.GetActivityType() == ActivityTypes.Message) ||
                 (activity.GetActivityType() == ActivityTypes.Invoke))
             {
                 await Conversation.SendAsync(activity, () => this.scope.Resolve<Dialogs.OcrDialog>());
+            }
+            else
+            {
+                HandleSystemMessage(activity);
+            }
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            return response;
+        }
+
+        /// <summary>
+        /// POST: api/messages
+        /// (Caption Bot) Receive a message from a user and reply to it
+        /// </summary>
+        [HttpPost]
+        [Route("caption/messages")]
+        [BotAuthentication(MicrosoftAppIdSettingName = "CaptionMicrosoftAppId", MicrosoftAppPasswordSettingName = "CaptionMicrosoftAppPassword")]
+        public async Task<HttpResponseMessage> PostToCaptionBot([FromBody]Activity activity)
+        {
+            if ((activity.GetActivityType() == ActivityTypes.Message) ||
+                (activity.GetActivityType() == ActivityTypes.Invoke))
+            {
+                await Conversation.SendAsync(activity, () => this.scope.Resolve<Dialogs.CaptionDialog>());
             }
             else
             {
