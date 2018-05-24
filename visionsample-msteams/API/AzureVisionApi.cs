@@ -54,7 +54,7 @@
             var request = new HttpRequestMessage(HttpMethod.Post, $"https://{this.endpoint}/{DescribePath}?language={language}&maxCandidates={maxCandidates}");
             request.Headers.Add(SubscriptionKeyHeaderName, this.accessKey);
             request.Content = new StreamContent(new MemoryStream(image));
-            //request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
             var response = await this.httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
