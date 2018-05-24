@@ -33,6 +33,7 @@ namespace VisonSample.Dialogs
     using Newtonsoft.Json.Linq;
     using VisionSample.Api;
     using VisonSample.Api.Models;
+    using VisonSample.Utilities;
 
     /// <summary>
     /// Root dialog for Caption bot.
@@ -90,21 +91,22 @@ namespace VisonSample.Dialogs
             }
 
             // 2) Inline image attachment -- an image pasted into the compose box, or selected from the photo library on mobile
-            var inlineImageUrl = MessageHelper.GetFirstInlineImageAttachmentUrl(message.Attachments);
-            if (inlineImageUrl != null)
+            var inlineImageAttachment = MessageHelper.GetInlineImageAttachments(message.Attachments)?.FirstOrDefault();
+            if (inlineImageAttachment != null)
             {
                 // Image was sent as inline content
                 // contentUrl is a url to the file content; the bot's bearer token is required
                 await this.SendImageCaptionAsync(context, Task.Run(async () =>
                 {
-                    var imageContent = await MessageHelper.GetInlineAttachmentContentAsync(inlineImageUrl, this.appCredentialsProvider.GetCredentials(message.Recipient.Id), this.httpClient);
+                    var appCredentials = this.appCredentialsProvider.GetCredentials(message.Recipient.Id);
+                    var imageContent = await MessageHelper.GetInlineAttachmentContentAsync(inlineImageAttachment.ContentUrl, appCredentials, this.httpClient);
                     return await this.visionApi.DescribeImageAsync(imageContent);
                 }));
                 return;
             }
 
             // 3) URL to an image sent in the text of the message
-            var url = MessageHelper.FindUrl(message.Text);
+            var url = MessageHelper.FindHttpUrl(message.Text);
             if (url != null)
             {
                 await this.SendImageCaptionAsync(context, Task.Run(async () =>

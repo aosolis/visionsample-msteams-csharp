@@ -161,7 +161,6 @@
   <ItemGroup>
     <Compile Include="Api\AzureVisionApiException.cs" />
     <Compile Include="Api\AzureVisionApi.cs" />
-    <Compile Include="Api\IVisionApi.cs" />
     <Compile Include="Api\Models\Error.cs" />
     <Compile Include="Api\Models\OcrTypes.cs" />
     <Compile Include="Api\Models\DescribeImageTypes.cs" />
@@ -173,12 +172,12 @@
     <Compile Include="BotBuilder-Extensions\FileDownloadInfo.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Dialogs\OcrDialog.cs" />
-    <Compile Include="Dialogs\MessageHelper.cs" />
+    <Compile Include="Utilities\MessageHelper.cs" />
     <Compile Include="Dialogs\CaptionDialog.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="MicrosoftAppCredentialsProvider.cs" />
+    <Compile Include="Utilities\MicrosoftAppCredentialsProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

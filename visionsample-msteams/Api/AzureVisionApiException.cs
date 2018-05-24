@@ -25,22 +25,43 @@ namespace VisionSample.Api
 {
     using System;
 
+    /// <summary>
+    /// Represents an error from the Azure Computer Vision API.
+    /// </summary>
     public class AzureVisionApiException : Exception
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AzureVisionApiException"/> class.
+        /// </summary>
         public AzureVisionApiException()
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AzureVisionApiException"/> class.
+        /// </summary>
+        /// <param name="message">The exception message</param>
         public AzureVisionApiException(string message) : base(message)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AzureVisionApiException"/> class.
+        /// </summary>
+        /// <param name="message">The exception message</param>
+        /// <param name="innerException">The inner exception</param>
         public AzureVisionApiException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
+        /// <summary>
+        /// The error code from the API (see https://westus.dev.cognitive.microsoft.com/docs/services/56f91f2d778daf23d8ec6739/operations/56f91f2e778daf14a499e1fa)
+        /// </summary>
         public string ErrorCode { get; set; }
 
+        /// <summary>
+        /// The ID of the failed request
+        /// </summary>
         public string RequestId { get; set; }
     }
 }

@@ -36,6 +36,7 @@ namespace VisonSample
     using Microsoft.Bot.Builder.Internals.Fibers;
     using Microsoft.Bot.Connector;
     using VisionSample.Api;
+    using VisonSample.Utilities;
 
     public class WebApiApplication : System.Web.HttpApplication
     {
