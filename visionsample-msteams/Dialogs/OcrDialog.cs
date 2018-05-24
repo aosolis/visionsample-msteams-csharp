@@ -102,7 +102,7 @@
                 // contentUrl is a url to the file content; the bot's bearer token is required
                 await this.SendOcrResultAsync(context, Task.Run(async () =>
                 {
-                    var imageContent = await MessageHelper.GetInlineAttachmentContentAsync(inlineImageUrl, this.appCredentialsProvider.GetCredentials(), this.httpClient);
+                    var imageContent = await MessageHelper.GetInlineAttachmentContentAsync(inlineImageUrl, this.appCredentialsProvider.GetCredentials(message.Recipient.Id), this.httpClient);
                     return await this.visionApi.RunOcrAsync(imageContent);
                 }));
                 return;
@@ -125,7 +125,7 @@
 
         private async Task HandleFileConsentResponseAsync(IDialogContext context, Activity message)
         {
-            IConnectorClientFactory connectorClientFactory = new ConnectorClientFactory(Address.FromActivity(message), this.appCredentialsProvider.GetCredentials());
+            IConnectorClientFactory connectorClientFactory = new ConnectorClientFactory(Address.FromActivity(message), this.appCredentialsProvider.GetCredentials(message.Recipient.Id));
             var connectorClient = connectorClientFactory.MakeConnectorClient();
 
             var fileConsentCardResponse = ((JObject)message.Value).ToObject<FileConsentCardResponse>();

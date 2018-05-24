@@ -8,7 +8,7 @@ using Microsoft.Bot.Connector;
 
 namespace VisonSample
 {
-    [BotAuthentication]
+    [BotAuthentication(MicrosoftAppIdSettingName = "OcrMicrosoftAppId", MicrosoftAppPasswordSettingName = "OcrMicrosoftAppPassword")]
     public class MessagesController : ApiController
     {
         private ILifetimeScope scope;

@@ -49,10 +49,16 @@ namespace VisonSample
                     .Keyed<HttpClient>(FiberModule.Key_DoNotSerialize)
                     .SingleInstance();
 
+                // Replace resolution strategy for MicrosoftAppCredentials
                 builder.RegisterType<MicrosoftAppCredentialsProvider>()
                     .AsImplementedInterfaces()
                     .Keyed<IMicrosoftAppCredentialsProvider>(FiberModule.Key_DoNotSerialize)
                     .SingleInstance();
+                builder.Register(c =>
+                {
+                    var activity = c.Resolve<IActivity>();
+                    return c.Resolve<IMicrosoftAppCredentialsProvider>().GetCredentials(activity.Recipient.Id);
+                }).AsSelf();
 
                 builder.Register(c =>
                     {
@@ -64,6 +70,7 @@ namespace VisonSample
                     .Keyed<IVisionApi>(FiberModule.Key_DoNotSerialize)
                     .SingleInstance();
 
+                // Register dialogs
                 builder.RegisterType<Dialogs.CaptionDialog>()
                     .AsSelf()
                     .InstancePerDependency();
