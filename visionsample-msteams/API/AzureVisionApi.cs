@@ -41,9 +41,19 @@
             request.Content = new ObjectContent<DescribeImageRequest>(body, JsonFormatter);
 
             var response = await this.httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
-            return JsonConvert.DeserializeObject<DescribeImageResult>(await response.Content.ReadAsStringAsync());
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<DescribeImageResult>(await response.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                var error = JsonConvert.DeserializeObject<Error>(await response.Content.ReadAsStringAsync());
+                throw new AzureVisionApiException(error.Message)
+                {
+                    ErrorCode = error.Code,
+                    RequestId = error.RequestId,
+                };
+            }
         }
 
         public async Task<DescribeImageResult> DescribeImageAsync(byte[] image, string language = "en", int maxCandidates = 1)
@@ -55,9 +65,19 @@
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
             var response = await this.httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
-            return JsonConvert.DeserializeObject<DescribeImageResult>(await response.Content.ReadAsStringAsync());
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<DescribeImageResult>(await response.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                var error = JsonConvert.DeserializeObject<Error>(await response.Content.ReadAsStringAsync());
+                throw new AzureVisionApiException(error.Message)
+                {
+                    ErrorCode = error.Code,
+                    RequestId = error.RequestId,
+                };
+            }
         }
 
         public Task<OcrResult> RunOcrAsync(string image, string language = "en")

@@ -159,10 +159,12 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\AzureVisionApiException.cs" />
     <Compile Include="Api\AzureVisionApi.cs" />
     <Compile Include="Api\IVisionApi.cs" />
-    <Compile Include="Api\Models\RunOcr.cs" />
-    <Compile Include="Api\Models\DescribeImage.cs" />
+    <Compile Include="Api\Models\Error.cs" />
+    <Compile Include="Api\Models\RunOcrTypes.cs" />
+    <Compile Include="Api\Models\DescribeImageTypes.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="BotBuilder-Extensions\FileUploadInfo.cs" />
     <Compile Include="BotBuilder-Extensions\FileConsentCardResponse.cs" />
