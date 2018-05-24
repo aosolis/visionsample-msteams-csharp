@@ -171,9 +171,11 @@ namespace VisonSample.Dialogs
         {
             var bytes = Encoding.UTF8.GetBytes(text);
             var content = new StreamContent(new MemoryStream(bytes));
-            content.Headers.ContentRange = new ContentRangeHeaderValue(bytes.LongLength);
+            content.Headers.ContentRange = new ContentRangeHeaderValue(0, bytes.LongLength - 1, bytes.LongLength);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-            await this.httpClient.PutAsync(uploadUrl, content);
+
+            var response = await this.httpClient.PutAsync(uploadUrl, content);
+            response.EnsureSuccessStatusCode();
         }
 
         private async Task SendOcrResultAsync(IDialogContext context, Task<OcrResult> operation, string filename = null)
