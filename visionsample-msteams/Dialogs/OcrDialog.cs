@@ -1,15 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Connector;
-using VisionSample.Api;
-using System.Linq;
-using Newtonsoft.Json.Linq;
 using Microsoft.Bot.Connector.Teams.Models;
+using Newtonsoft.Json.Linq;
+using VisionSample.Api;
 using VisonSample.Api.Models;
-using System.Net.Http;
-using System.Globalization;
-using System.Collections.Generic;
 
 namespace VisonSample.Dialogs
 {
@@ -55,11 +59,19 @@ namespace VisonSample.Dialogs
             // Ignore invoke activities
             if (message.GetActivityType() == ActivityTypes.Invoke)
             {
+                if (message.Name == FileConsentCardResponse.InvokeName)
+                {
+                    await this.HandleFileConsentResponseAsync(context, message);
+                }
+                else
+                {
+                    Trace.WriteLine($"Received unknown invoke activity name: {message.Name}");
+                }
                 return;
             }
 
             // Send typing activity
-            var typingActivity = message.CreateReply();
+            var typingActivity = context.MakeMessage();
             typingActivity.Type = ActivityTypes.Typing;
             await context.PostAsync(typingActivity);
 
@@ -107,6 +119,61 @@ namespace VisonSample.Dialogs
 
             // Send instruction text
             await context.PostAsync("Hi! Send me a picture or a link to one, and I'll tell you what it is.");
+        }
+
+        private async Task HandleFileConsentResponseAsync(IDialogContext context, Activity message)
+        {
+            var fileConsentCardResponse = ((JObject)message.Value).ToObject<FileConsentCardResponse>();
+            switch (fileConsentCardResponse.Action)
+            {
+                case FileConsentCardResponse.DeclineAction:
+                    // TODO: Delete file consent card
+                    await context.PostAsync("Ok! If you change your mind, just send me the picture again.");
+                    break;
+
+                case FileConsentCardResponse.AcceptAction:
+                    // Send typing activity
+                    var typingActivity = context.MakeMessage();
+                    typingActivity.Type = ActivityTypes.Typing;
+                    await context.PostAsync(typingActivity);
+
+                    // Check that response is for the current OCR result
+                    var responseContext = ((JObject)fileConsentCardResponse.Context).ToObject<FileConsentContext>();
+                    var lastOcrResult = context.ConversationData.GetValueOrDefault<OcrResultData>(OcrResultKey);
+                    if (lastOcrResult?.ResultId != responseContext.ResultId)
+                    {
+                        await context.PostAsync("That result has expired. Send me the picture again, and I'll rescan it.");
+                        return;
+                    }
+
+                    try
+                    {
+                        // Upload the file contents to the upload session we got from the invoke value
+                        // See https://docs.microsoft.com/en-us/onedrive/developer/rest-api/api/driveitem_createuploadsession#upload-bytes-to-the-upload-session
+                        await this.UploadFileAsync(fileConsentCardResponse.UploadInfo.UploadUrl, lastOcrResult.Text);
+
+                        // Send message with link to the file.
+                        // The fields in the file info card are populated from the upload info we got in the incoming invoke.
+                        var fileInfoCard = FileInfoCard.FromFileUploadInfo(fileConsentCardResponse.UploadInfo);
+                        var reply = context.MakeMessage();
+                        reply.Attachments = new List<Attachment> { fileInfoCard.ToAttachment() };
+                        await context.PostAsync(reply);
+                    }
+                    catch (Exception ex)
+                    {
+                        await context.PostAsync(string.Format("There was an error uploading the file: {0}", ex.Message));
+                    }
+                    break;
+            }
+        }
+
+        private async Task UploadFileAsync(string uploadUrl, string text)
+        {
+            var bytes = Encoding.UTF8.GetBytes(text);
+            var content = new StreamContent(new MemoryStream(bytes));
+            content.Headers.ContentRange = new ContentRangeHeaderValue(bytes.LongLength);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            await this.httpClient.PutAsync(uploadUrl, content);
         }
 
         private async Task SendOcrResultAsync(IDialogContext context, Task<OcrResult> operation, string filename = null)
