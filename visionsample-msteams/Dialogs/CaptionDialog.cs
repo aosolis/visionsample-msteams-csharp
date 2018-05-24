@@ -15,9 +15,7 @@ namespace VisonSample.Dialogs
     public class CaptionDialog : IDialog<object>
     {
         private IVisionApi visionApi;
-
         private IMicrosoftAppCredentialsProvider appCredentialsProvider;
-
         private HttpClient httpClient;
 
         public CaptionDialog(IVisionApi visionApi, IMicrosoftAppCredentialsProvider appCredentialsProvider, HttpClient httpClient)
@@ -37,6 +35,12 @@ namespace VisonSample.Dialogs
         private async Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
         {
             var message = await result as Activity;
+
+            // Ignore invoke activities
+            if (message.GetActivityType() == ActivityTypes.Invoke)
+            {
+                return;
+            }
 
             // Send typing activity
             var typingActivity = message.CreateReply();

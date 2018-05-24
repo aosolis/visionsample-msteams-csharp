@@ -2,11 +2,16 @@
 {
     using System.Collections.Generic;
 
+    public class OcrRequest
+    {
+        public string Url { get; set; }
+    }
+
     public class OcrResult
     {
         public string Language { get; set; }
 
-        public int TextAngle { get; set; }
+        public double TextAngle { get; set; }
 
         public string Orientation { get; set; }
 

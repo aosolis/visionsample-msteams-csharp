@@ -163,7 +163,7 @@
     <Compile Include="Api\AzureVisionApi.cs" />
     <Compile Include="Api\IVisionApi.cs" />
     <Compile Include="Api\Models\Error.cs" />
-    <Compile Include="Api\Models\RunOcrTypes.cs" />
+    <Compile Include="Api\Models\OcrTypes.cs" />
     <Compile Include="Api\Models\DescribeImageTypes.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="BotBuilder-Extensions\FileUploadInfo.cs" />
@@ -172,6 +172,7 @@
     <Compile Include="BotBuilder-Extensions\FileConsentCard.cs" />
     <Compile Include="BotBuilder-Extensions\FileDownloadInfo.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
+    <Compile Include="Dialogs\OcrDialog.cs" />
     <Compile Include="Dialogs\MessageHelper.cs" />
     <Compile Include="Dialogs\CaptionDialog.cs" />
     <Compile Include="Dialogs\RootDialog.cs" />

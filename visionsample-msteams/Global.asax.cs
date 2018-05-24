@@ -67,6 +67,9 @@ namespace VisonSample
                 builder.RegisterType<Dialogs.CaptionDialog>()
                     .AsSelf()
                     .InstancePerDependency();
+                builder.RegisterType<Dialogs.OcrDialog>()
+                    .AsSelf()
+                    .InstancePerDependency();
             });
 
             // Register Autofac as the dependency resolver

@@ -24,9 +24,10 @@ namespace VisonSample
         /// </summary>
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
-            if (activity.GetActivityType() == ActivityTypes.Message)
+            if ((activity.GetActivityType() == ActivityTypes.Message) ||
+                (activity.GetActivityType() == ActivityTypes.Invoke))
             {
-                await Conversation.SendAsync(activity, () => this.scope.Resolve<Dialogs.CaptionDialog>());
+                await Conversation.SendAsync(activity, () => this.scope.Resolve<Dialogs.OcrDialog>());
             }
             else
             {

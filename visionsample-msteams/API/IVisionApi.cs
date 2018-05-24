@@ -9,8 +9,8 @@
 
         Task<DescribeImageResult> DescribeImageAsync(byte[] image, string language = "en", int maxCandidates = 1);
 
-        Task<OcrResult> RunOcrAsync(string image, string language = "en");
+        Task<OcrResult> RunOcrAsync(string image);
 
-        Task<OcrResult> RunOcrAsync(byte[] image, string language = "en");
+        Task<OcrResult> RunOcrAsync(byte[] image);
     }
 }

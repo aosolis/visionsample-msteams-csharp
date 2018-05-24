@@ -56,12 +56,12 @@
             }
         }
 
-        public async Task<DescribeImageResult> DescribeImageAsync(byte[] image, string language = "en", int maxCandidates = 1)
+        public async Task<DescribeImageResult> DescribeImageAsync(byte[] imageBuffer, string language = "en", int maxCandidates = 1)
         {
             var url = $"https://{endpoint}/{DescribePath}?language={language}&maxCandidates={maxCandidates}";
             var request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Headers.Add(SubscriptionKeyHeaderName, this.accessKey);
-            request.Content = new StreamContent(new MemoryStream(image));
+            request.Content = new StreamContent(new MemoryStream(imageBuffer));
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
 
             var response = await this.httpClient.SendAsync(request);
@@ -80,14 +80,53 @@
             }
         }
 
-        public Task<OcrResult> RunOcrAsync(string image, string language = "en")
+        public async Task<OcrResult> RunOcrAsync(string imageUrl)
         {
-            throw new NotImplementedException();
+            var url = $"https://{endpoint}/{OcrPath}?detectOrientation=true";
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add(SubscriptionKeyHeaderName, this.accessKey);
+
+            var body = new OcrRequest { Url = imageUrl };
+            request.Content = new ObjectContent<OcrRequest>(body, JsonFormatter);
+
+            var response = await this.httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<OcrResult>(await response.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                var error = JsonConvert.DeserializeObject<Error>(await response.Content.ReadAsStringAsync());
+                throw new AzureVisionApiException(error.Message)
+                {
+                    ErrorCode = error.Code,
+                    RequestId = error.RequestId,
+                };
+            }
         }
 
-        public Task<OcrResult> RunOcrAsync(byte[] image, string language = "en")
+        public async Task<OcrResult> RunOcrAsync(byte[] imageBuffer)
         {
-            throw new NotImplementedException();
+            var url = $"https://{endpoint}/{OcrPath}?detectOrientation=true";
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add(SubscriptionKeyHeaderName, this.accessKey);
+            request.Content = new StreamContent(new MemoryStream(imageBuffer));
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+            var response = await this.httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<OcrResult>(await response.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                var error = JsonConvert.DeserializeObject<Error>(await response.Content.ReadAsStringAsync());
+                throw new AzureVisionApiException(error.Message)
+                {
+                    ErrorCode = error.Code,
+                    RequestId = error.RequestId,
+                };
+            }
         }
     }
 }
