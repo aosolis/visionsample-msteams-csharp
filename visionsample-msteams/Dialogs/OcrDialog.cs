@@ -42,6 +42,7 @@ namespace VisonSample.Dialogs
     using VisionSample.Api;
     using VisonSample.Api.Models;
     using VisonSample.Utilities;
+    using Activity = Microsoft.Bot.Connector.Activity;
 
     /// <summary>
     /// Root dialog for OCR bot
