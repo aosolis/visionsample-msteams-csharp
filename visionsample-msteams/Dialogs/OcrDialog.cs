@@ -150,7 +150,7 @@ namespace VisonSample.Dialogs
             }
 
             // No image found -- send instruction text
-            await context.PostAsync("Hi! Send me a picture or a link to one, and I'll tell you what it is.");
+            await context.PostAsync("Hi! Send me a picture or a link to one, and I'll return a file with the text that I recognized.");
         }
 
         /// <summary>
