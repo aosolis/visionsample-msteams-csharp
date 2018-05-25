@@ -117,7 +117,14 @@ namespace VisonSample.Dialogs
             }
 
             // Send instruction text
-            await context.PostAsync("Hi! Send me a picture or a link to one, and I'll tell you what it is.");
+            if (message.Conversation.ConversationType == "personal")
+            {
+                await context.PostAsync("Hi! Send me a picture or a link to one, and I'll tell you what it is.");
+            }
+            else
+            {
+                await context.PostAsync("Hi! Send me a picture or a link to one, and I'll tell you what it is. In channels and group chats, please paste the picture directly into the compose box: Teams won't let me receive file attachments yet!");
+            }
         }
 
         private async Task SendImageCaptionAsync(IDialogContext context, Task<DescribeImageResult> operation)
