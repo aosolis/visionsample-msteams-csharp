@@ -9,9 +9,10 @@ Follow the instructions in the [Microsoft Teams Sample (C#)](https://github.com/
 1. Set up a tunneling service such as [ngrok](https://ngrok.com/)
 2. Register a bot in [Microsoft Bot Framework](https://dev.botframework.com/).
 
-This project contains 2 bots. Depending on which one you want to run, set the corresponding messaging endpoint in the Bot Framework portal, and the right variables in `web.config`. (You can also register two bots and run both simulataneously.)
+This project contains 2 bots. Depending on which one you want to run, set the corresponding messaging endpoint in the Bot Framework portal, and the right variables in `web.config`. (You can also register two bots and run both simultaneously.)
+
 | Property | Caption Bot | OCR Bot |
-|---|---|---|---|
+|---|---|---|
 | Messaging endpoint | `https://xxxx.ngrok.io/caption/messages` | `https://xxxx.ngrok.io/ocr/messages` |
 | App ID | Set `CaptionMicrosoftAppId` | Set `OcrMicrosoftAppId` |
 | App password | Set `CaptionMicrosoftAppPassword` | Set `OcrMicrosoftAppPassword` |
