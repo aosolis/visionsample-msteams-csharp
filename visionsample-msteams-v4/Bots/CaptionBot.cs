@@ -2,11 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
@@ -14,17 +11,16 @@ using Microsoft.Bot.Builder.Teams;
 using Microsoft.Bot.Schema;
 using Microsoft.Bot.Schema.Teams;
 using Newtonsoft.Json.Linq;
+using VisionSample.Api;
 using VisionSample.Api.Models;
+using VisonSample.Utilities;
 
 namespace VisionSample.Bots
 {
     public class CaptionBot : TeamsActivityHandler
     {
-        /*
-         * You can install this bot at any scope. You can @mention the bot and it will present you with the file prompt. You can accept and 
-         * the file will be uploaded, or you can decline and it won't.
-         */
-
+        private readonly IVisionApi visionApi;
+        private readonly IMicrosoftAppCredentialsProvider appCredentialsProvider;
         private readonly IHttpClientFactory _clientFactory;
 
         public CaptionBot(IHttpClientFactory clientFactory)
